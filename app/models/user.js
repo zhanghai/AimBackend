@@ -39,10 +39,10 @@ UserSchema.path('username').validate(function (username, respond) {
         // Check only when it is a new user or when username field is modified
         const User = mongoose.model('User');
         User.find({ username: username }).exec(function (err, users) {
-            respond(!err && users.length === 0);
+            return respond(!err && users.length === 0);
         });
     } else {
-        respond(true);
+        return respond(true);
     }
 }, 'Username already exists');
 
@@ -52,11 +52,11 @@ UserSchema.path('username').validate(function (username, respond) {
 
 UserSchema.pre('save', function (next) {
     if (!this.isNew) {
-        return next()
+        return next();
     } else if (!(this.password && this.password.length)) {
-        next(new Error('Invalid password'));
+        return next(new Error('Invalid password'));
     } else {
-        next();
+        return next();
     }
 });
 
@@ -98,7 +98,9 @@ UserSchema.methods = {
      */
 
     encryptPassword: function (password) {
-        if (!password) return '';
+        if (!password) {
+            return '';
+        }
         try {
             return crypto
                 .createHmac('sha1', this.passwordSalt)

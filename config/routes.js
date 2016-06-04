@@ -1,16 +1,26 @@
 'use strict';
 
+const users = require('../app/controllers/users');
+
 module.exports = function (app, passport) {
 
-    /* GET home page. */
-    app.get('/', function(req, res, next) {
-        res.render('index', { title: 'Express' });
+    app.get('/', function(req, res) {
+        res.render('index', { title: 'Aim' });
     });
 
-    /* GET users listing. */
-    app.get('/', function(req, res, next) {
-        res.send('respond with a resource');
+    app.get('/register', function (req, res) {
+        res.render('users/register');
     });
+    app.post('/register', users.register);
+    app.get('/login', function (req, res) {
+        res.render('users/login');
+    });
+    app.post('/login', passport.authenticate('local', {
+        successRedirect: '/',
+        failureRedirect: '/login',
+        failureFlash: true
+    }));
+    app.get('/users/:username', users.show);
 
     app.use(function(req, res, next) {
         const err = new Error('Not Found');
@@ -21,22 +31,28 @@ module.exports = function (app, passport) {
     if (app.get('env') === 'development') {
         // development error handler
         // will print stacktrace
-        app.use(function(err, req, res, next) {
-            res.status(err.status || 500);
+        app.use(function(err, req, res) {
+            if (!err.status) {
+                err.status = 500;
+            }
+            res.status(err.status);
             res.render('error', {
-                message: err.message,
                 error: err
             });
         });
     }
 
     // production error handler
-    // no stacktraces leaked to user
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
+    // no stacktrace leaked to user
+    app.use(function (err, req, res) {
+        if (!err.status) {
+            err.status = 500;
+        }
+        res.status(err.status);
         res.render('error', {
-            message: err.message,
-            error: {}
+            error: {
+                message: err.message
+            }
         });
     });
 };

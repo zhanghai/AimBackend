@@ -10,7 +10,7 @@
                 <fieldset>
                     <legend>登录</legend>
                     <%- include('../includes/flash') %>
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <%- include('../includes/csrf') %>
                     <div class="form-group label-floating" style="margin: 14px 0 0 0">
                         <label for="username" class="control-label" style="padding-top: initial">用户名</label>
                         <input id="username" name="username" required pattern="[0-9A-Za-z]{1,16}" title="1-16 位英文字母或数字" class="form-control">

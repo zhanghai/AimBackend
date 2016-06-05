@@ -1,6 +1,7 @@
 'use strict';
 
 const bodyParser = require('body-parser');
+const csrf = require('csurf');
 const express = require('express');
 const favicon = require('serve-favicon');
 const flash = require('connect-flash');
@@ -45,7 +46,6 @@ module.exports = function (app, passport) {
     app.use(passport.session());
 
     app.use(flash());
-
     app.use(function (req, res, next) {
         res.locals.successes = req.flash('success');
         res.locals.infos = req.flash('info');
@@ -53,4 +53,10 @@ module.exports = function (app, passport) {
         res.locals.errors = req.flash('error');
         next();
     });
+
+    app.use(csrf());
+    app.use(function (req, res, next) {
+        res.locals.csrfToken = req.csrfToken();
+        next();
+    })
 };

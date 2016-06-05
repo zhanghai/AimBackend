@@ -1,3 +1,10 @@
-<% if (message) { %>
-<p><%= message %></p>
+<% if (errors.length) { %>
+<div class="alert alert-dismissible alert-danger">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <ul>
+        <% errors.forEach(function (message) { %>
+        <li><%= message %></li>
+        <% }) %>
+    </ul>
+</div>
 <% } %>

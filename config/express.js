@@ -45,4 +45,12 @@ module.exports = function (app, passport) {
     app.use(passport.session());
 
     app.use(flash());
+
+    app.use(function (req, res, next) {
+        res.locals.successes = req.flash('success');
+        res.locals.infos = req.flash('info');
+        res.locals.warnings = req.flash('warning');
+        res.locals.errors = req.flash('error');
+        next();
+    });
 };

@@ -5,10 +5,7 @@ const mongoose = require('mongoose');
 
 const User = mongoose.model('User');
 
-module.exports = new LocalStrategy({
-        usernameField: 'username',
-        passwordField: 'password'
-    }, function (username, password, done) {
+module.exports = new LocalStrategy(function (username, password, done) {
         const options = {
             criteria: { username: username },
             select: 'username passwordSalt passwordHash nickname'

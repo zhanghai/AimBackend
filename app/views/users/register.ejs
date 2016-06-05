@@ -1,15 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh">
-<head>
-    <meta charset="UTF-8">
-    <title>注册 Aim</title>
-</head>
-<body>
-<form method="post">
-    <input name="username" placeholder="用户名">
-    <input name="nickname" placeholder="昵称">
-    <input name="password" type="password" placeholder="密码">
-    <input type="submit" value="注册">
-</form>
+<html lang="zh" style="display: table; width: 100%; height: 100%">
+<%- include('../includes/head', { title: '注册' }) %>
+<body style="display: table-cell; vertical-align: middle; background-image: url(/images/background.jpg); background-size: cover">
+<main>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="well col-xs-offset-2 col-xs-8 col-md-offset-3 col-md-6 col-lg-offset-4 col-lg-4">
+                <form method="post" class="form-horizontal">
+                    <fieldset>
+                        <legend>注册</legend>
+                        <%- include('../includes/flash') %>
+                        <div class="form-group label-floating" style="margin: 14px 0 0 0">
+                            <label for="username" class="control-label" style="padding-top: initial">用户名</label>
+                            <input id="username" name="username" required pattern="[0-9A-Za-z]{1,16}" title="1-16 位英文字母或数字" class="form-control">
+                        </div>
+                        <div class="form-group label-floating" style="margin: 14px 0 0 0">
+                            <label for="nickname" class="control-label" style="padding-top: initial">昵称</label>
+                            <input id="nickname" name="nickname" required maxlength="16" class="form-control">
+                        </div>
+                        <div class="form-group label-floating" style="margin: 14px 0 14px 0">
+                            <label for="password" class="control-label" style="padding-top: initial">密码</label>
+                            <input id="password" name="password" required type="password" class="form-control">
+                        </div>
+                        <input type="submit" value="注册" class="btn btn-raised btn-primary col-xs-12">
+                        <a href="/login" class="btn btn-primary pull-right">已有账户？现在登录</a>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<%- include('../includes/foot') %>
 </body>
 </html>

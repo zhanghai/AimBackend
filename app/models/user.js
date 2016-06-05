@@ -55,6 +55,8 @@ UserSchema.pre('save', function (next) {
         return next();
     } else if (!(this.password && this.password.length)) {
         return next(new Error('Invalid password'));
+    } else if (this.password.length < 6) {
+        return next(new Error('Password length must be greater than 6'));
     } else {
         return next();
     }

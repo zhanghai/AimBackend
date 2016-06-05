@@ -21,10 +21,13 @@ module.exports.register = function (req, res, next) {
     const user = new User(req.body);
     user.save(function (err) {
         if (err) {
-            const errors = err.errors;
-            Object.keys(errors).forEach(function (path) {
-                req.flash('error', errors[path].message);
-            });
+            if (err.errors) {
+                Object.keys(err.errors).forEach(function (path) {
+                    req.flash('error', err.errors[path].message);
+                });
+            } else {
+                req.flash('error', err.message);
+            }
             return res.redirect('/register');
         } else {
             req.login(user, function (err) {

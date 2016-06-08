@@ -5,10 +5,6 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-/**
- * User Schema
- */
-
 const UserSchema = new Schema({
     username: {
         type: String,
@@ -38,10 +34,6 @@ const UserSchema = new Schema({
     }]
 });
 
-/**
- * Virtuals
- */
-
 UserSchema.virtual('password')
     .set(function (password) {
         this._password = password;
@@ -51,10 +43,6 @@ UserSchema.virtual('password')
     .get(function () {
         return this._password;
     });
-
-/**
- * Validations
- */
 
 UserSchema.path('username').validate(function (username, respond) {
     if (this.isNew || this.isModified('username')) {
@@ -68,10 +56,6 @@ UserSchema.path('username').validate(function (username, respond) {
     }
 }, 'Username already exists');
 
-/**
- * Pre-save hook
- */
-
 UserSchema.pre('save', function (next) {
     if (!this.isNew) {
         return next();
@@ -84,42 +68,15 @@ UserSchema.pre('save', function (next) {
     }
 });
 
-/**
- * Methods
- */
-
 UserSchema.methods = {
 
-    /**
-     * Authenticate - check if the passwords are the same
-     *
-     * @param {String} plainText
-     * @return {Boolean}
-     * @api public
-     */
-
-    authenticate: function (plainText) {
-        return this.encryptPassword(plainText) === this.passwordHash;
+    authenticate: function (password) {
+        return this.encryptPassword(password) === this.passwordHash;
     },
-
-    /**
-     * Make passwordSalt
-     *
-     * @return {String}
-     * @api public
-     */
 
     makeSalt: function () {
         return Math.round((new Date().valueOf() * Math.random())) + '';
     },
-
-    /**
-     * Encrypt password
-     *
-     * @param {String} password
-     * @return {String}
-     * @api public
-     */
 
     encryptPassword: function (password) {
         if (!password) {

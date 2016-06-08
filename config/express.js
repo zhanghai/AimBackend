@@ -30,7 +30,7 @@ module.exports = function (app, passport) {
     app.use(less(path.join(root, 'public')));
     app.use(express.static(path.join(root, 'public')));
 
-    //app.use(bodyParser.json());
+    app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
 
     app.use(session({
@@ -54,9 +54,9 @@ module.exports = function (app, passport) {
         next();
     });
 
-    app.use(csrf());
-    app.use(function (req, res, next) {
-        res.locals.csrfToken = req.csrfToken();
-        next();
-    })
+    // app.use(csrf());
+    // app.use(function (req, res, next) {
+    //     res.locals.csrfToken = req.csrfToken();
+    //     next();
+    // })
 };

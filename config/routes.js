@@ -24,11 +24,22 @@ module.exports = function (app, passport) {
 
     // TODO
     //app.all('/api/*', requireAuthentication);
-    app.get('/api/friends', api.friends.list);
-    app.get('/api/friends/:username', api.friends.retrieve);
-    app.post('/api/friends/:username', api.friends.createOrPatch);
 
-    app.get('/users/:username', users.show);
+    app.get('/api/requests', api.requests.list);
+    app.post('/api/requests', api.requests.create);
+    app.get('/api/requests/:requestId', api.requests.retrieve);
+    app.patch('/api/requests/:requestId', api.requests.update);
+    // For compatibility
+    app.post('/api/requests/:requestId', api.requests.update);
+    app.delete('/api/requests/:requestId', api.requests.delete);
+
+    app.get('/api/friends', api.friends.list);
+    app.delete('/api/friends/:username', api.friends.delete);
+
+    app.get('/api/users/:username', api.users.retrieve);
+    app.patch('/api/users/:username', api.users.update);
+    // For compatibility
+    app.post('/api/users/:username', api.users.update);
 
     app.get('/chat', function (req, res) {
         res.render('chat');

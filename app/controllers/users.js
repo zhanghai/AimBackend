@@ -4,20 +4,7 @@ const mongoose = require('mongoose');
 
 const User = mongoose.model('User');
 
-module.exports.load = function (req, res, next, username) {
-    const criteria = { username: username };
-    try {
-        req.user = User.load({ criteria: criteria });
-        if (!req.user) {
-            return next(new Error('User not found'));
-        }
-    } catch (err) {
-        return next(err);
-    }
-    return next();
-};
-
-module.exports.register = function (req, res, next) {
+module.exports.register = function (req, res) {
     const user = new User(req.body);
     user.save(function (err) {
         if (err) {

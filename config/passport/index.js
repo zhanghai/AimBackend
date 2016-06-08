@@ -12,7 +12,7 @@ module.exports = function (passport) {
         done(null, user.id);
     });
     passport.deserializeUser(function (id, done) {
-        User.load({ criteria: { _id: id } }, done);
+        User.findById(id, done);
     });
 
     passport.use(local);

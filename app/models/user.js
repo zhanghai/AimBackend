@@ -10,10 +10,32 @@ const Schema = mongoose.Schema;
  */
 
 const UserSchema = new Schema({
-    username: { type: String, required: true, match: /^[0-9A-Za-z]{1,16}$/ },
-    passwordSalt: { type: String, required: true },
-    passwordHash: { type: String, required: true },
-    nickname: { type: String, required: true, minlength: 1, maxlength: 16 }
+    username: {
+        type: String,
+        required: true,
+        match: /^[0-9A-Za-z]{1,16}$/
+    },
+    passwordSalt: {
+        type: String,
+        required: true
+    },
+    passwordHash: {
+        type: String,
+        required: true
+    },
+    nickname: {
+        type: String,
+        required: true,
+        minlength: 1,
+        maxlength: 16
+    },
+    friends: [{
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        tag: [String]
+    }]
 });
 
 /**
@@ -36,7 +58,7 @@ UserSchema.virtual('password')
 
 UserSchema.path('username').validate(function (username, respond) {
     if (this.isNew || this.isModified('username')) {
-        // Check only when it is a new user or when username field is modified
+        // Check only when it is a new userId or when username field is modified
         const User = mongoose.model('User');
         User.find({ username: username }).exec(function (err, users) {
             return respond(!err && users.length === 0);
@@ -111,28 +133,6 @@ UserSchema.methods = {
         } catch (err) {
             return '';
         }
-    }
-};
-
-/**
- * Statics
- */
-
-UserSchema.statics = {
-
-    /**
-     * Load
-     *
-     * @param {Object} options
-     * @param {Function} callback
-     * @api private
-     */
-
-    load: function (options, callback) {
-        options.select = options.select || 'username nickname';
-        return this.findOne(options.criteria)
-            .select(options.select)
-            .exec(callback);
     }
 };
 

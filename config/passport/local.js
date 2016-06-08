@@ -6,17 +6,13 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 
 module.exports = new LocalStrategy(function (username, password, done) {
-        const options = {
-            criteria: { username: username },
-            select: 'username passwordSalt passwordHash nickname'
-        };
-        User.load(options, function (err, user) {
+        User.findOne({ username: username }, function (err, user) {
             if (err) {
                 return done(err);
             } else if (!user) {
-                return done(null, false, { message: 'Unknown user' });
+                return done(null, false, { message: '账户不存在' });
             } else if (!user.authenticate(password)) {
-                return done(null, false, { message: 'Invalid password' });
+                return done(null, false, { message: '密码错误' });
             } else {
                 return done(null, user);
             }

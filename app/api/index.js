@@ -1,8 +1,8 @@
 'use strict';
 
-import friends from './friends';
-import requests from './requests';
-import users from './users';
+const friends = require('./friends');
+const requests = require('./requests');
+const users = require('./users');
 
 module.exports = {
     friends,

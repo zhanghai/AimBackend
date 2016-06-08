@@ -1,10 +1,10 @@
 'use strict';
 
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const User = mongoose.model('User');
 
-export default {
+module.exports = {
     register: function (req, res) {
         const user = new User(req.body);
         user.save(function (err) {

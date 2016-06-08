@@ -1,12 +1,12 @@
 'use strict';
 
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const Relationship = mongoose.model('Relationship');
 const Request = mongoose.model('Request');
 const User = mongoose.model('User');
 
-export default {
+module.exports = {
 
     list: function (req, res) {
         Request.find({ user: req.user.id })

@@ -22,8 +22,15 @@ module.exports = function (app, passport) {
         failureFlash: true
     }));
 
-    // TODO
-    //app.all('/api/*', requireAuthentication);
+    app.post('/api/login', passport.authenticate('local'));
+
+    app.all('/api/*', function (req, res, next) {
+        if (req.isAuthenticated()) {
+            return next();
+        } else {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+    });
 
     app.get('/api/requests', api.requests.list);
     app.post('/api/requests', api.requests.create);

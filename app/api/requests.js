@@ -21,10 +21,13 @@ module.exports = {
     },
 
     create: function (req, res) {
-        User.findById({ username: req.body.username })
+        User.findOne({ username: req.body.username })
             .then(function (target) {
                 if (!target) {
                     return res.status(404).json({ message: 'User not found' });
+                }
+                if (target.id == req.user.id) {
+                    return res.status(403).json({ message: 'Cannot request oneself' });
                 }
                 return new Request({
                     user: target.id,

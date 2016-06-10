@@ -1,10 +1,8 @@
 'use strict';
 
 const bodyParser = require('body-parser');
-const csrf = require('csurf');
 const express = require('express');
 const favicon = require('serve-favicon');
-const flash = require('connect-flash');
 const less = require('less-middleware');
 const logger = require('morgan');
 const mongoose = require('mongoose');
@@ -41,22 +39,6 @@ module.exports = function (app, passport) {
             mongooseConnection: mongoose.connection
         })
     }));
-
     app.use(passport.initialize());
     app.use(passport.session());
-
-    app.use(flash());
-    app.use(function (req, res, next) {
-        res.locals.successes = req.flash('success');
-        res.locals.infos = req.flash('info');
-        res.locals.warnings = req.flash('warning');
-        res.locals.errors = req.flash('error');
-        next();
-    });
-
-    // app.use(csrf());
-    // app.use(function (req, res, next) {
-    //     res.locals.csrfToken = req.csrfToken();
-    //     next();
-    // })
 };

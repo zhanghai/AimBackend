@@ -24,17 +24,13 @@ const RelationshipSchema = new Schema({
         required: true,
         default: false
     },
-    tags: [String]
+    alias: String,
+    tags: [String],
+    description: String
 });
 
-RelationshipSchema.methods = {
-    addToUser: function (user) {
-        user.isFriend = this.isFriend;
-        user.tags = this.tags;
-    }
-};
-
 RelationshipSchema.statics = {
+
     setIsFriend : function (user1, user2, isFriend) {
         const Relationship = mongoose.model('Relationship');
         return Promise.all([
@@ -61,6 +57,15 @@ RelationshipSchema.statics = {
                 upsert: true
             })
         ]);
+    },
+
+    addToUser: function (user, relationship) {
+        if (user instanceof mongoose.Document) {
+            user = user.toObject();
+        }
+        user.isFriend = relationship ? relationship.isFriend : false;
+        user.tags = relationship ? relationship.tags : [];
+        return user;
     }
 };
 

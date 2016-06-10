@@ -7,7 +7,7 @@ const User = mongoose.model('User');
 
 module.exports = {
 
-    retrieve: function (req, res) {
+    retrieve: function (req, res, next) {
         User.findOne({ username: req.params.username })
             .then(function (user) {
                 if (!user) {
@@ -18,26 +18,29 @@ module.exports = {
                     target: user.id
                 })
                     .then(function (relationship) {
-                        if (relationship) {
-                            relationship.addToUser(user);
-                        }
-                        return res.status(200).json(user);
+                        return res.status(200).json(Relationship.addToUser(user, relationship));
                     });
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             })
     },
 
-    update: function (req, res) {
+    update: function (req, res, next) {
         User.findOne({ username: req.params.username })
             .then(function (user) {
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
                 const setOperand = {};
+                if (req.body.alias) {
+                    setOperand.alias = req.body.alias;
+                }
                 if (req.body.tags) {
-                    setOperand.tags = tags;
+                    setOperand.tags = req.body.tags;
+                }
+                if (req.body.description) {
+                    setOperand.description = req.body.description;
                 }
                 return Relationship.findOneAndUpdate({
                     user: req.user.id,
@@ -49,12 +52,11 @@ module.exports = {
                     upsert: true
                 })
                     .then(function (relationship) {
-                        relationship.addToUser(user);
-                        return res.status(200).json(user);
+                        return res.status(200).json(Relationship.addToUser(user, relationship));
                     });
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     }
 };

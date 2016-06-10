@@ -19,19 +19,18 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
+    avatar: {
+        type: String,
+        required: true,
+        default: '/images/default-avatar.svg'
+    },
     nickname: {
         type: String,
         required: true,
         minlength: 1,
         maxlength: 16
     },
-    friends: [{
-        userId: {
-            type: Schema.Types.ObjectId,
-            ref: 'User'
-        },
-        tag: [String]
-    }]
+    signature: String
 });
 
 UserSchema.virtual('password')

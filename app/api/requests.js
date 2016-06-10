@@ -8,7 +8,7 @@ const User = mongoose.model('User');
 
 module.exports = {
 
-    list: function (req, res) {
+    list: function (req, res, next) {
         Request.find({ user: req.user.id })
             .sort('-createdAt')
             .populate('requester')
@@ -16,11 +16,11 @@ module.exports = {
                 return res.status(200).json(requests);
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     },
 
-    create: function (req, res) {
+    create: function (req, res, next) {
         User.findOne({ username: req.body.username })
             .then(function (target) {
                 if (!target) {
@@ -39,11 +39,11 @@ module.exports = {
                     })
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             })
     },
 
-    retrieve: function (req, res) {
+    retrieve: function (req, res, next) {
         Request.findById(req.params.requestId)
             .populate('requester')
             .then(function (request) {
@@ -56,11 +56,11 @@ module.exports = {
                 return res.status(200).json(request);
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     },
 
-    update: function (req, res) {
+    update: function (req, res, next) {
         Request.findById(req.params.requestId)
             .then(function (request) {
                 if (!request) {
@@ -95,11 +95,11 @@ module.exports = {
                 }
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     },
 
-    delete: function (req, res) {
+    delete: function (req, res, next) {
         Request.findByIdAndRemove(req.params.requestId)
             .then(function (request) {
                 if (!request) {
@@ -114,7 +114,7 @@ module.exports = {
                     });
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     }
-}
+};

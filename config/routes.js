@@ -22,31 +22,37 @@ module.exports = function (app, passport) {
         failureFlash: true
     }));
 
-    app.post('/api/login', passport.authenticate('local'));
-
-    app.all('/api/*', function (req, res, next) {
-        if (req.isAuthenticated()) {
-            return next();
-        } else {
-            return res.status(401).json({ message: 'Authentication required' });
-        }
+    app.post('/api/login', passport.authenticate('local'), function (req, res) {
+        return res.sendStatus(204);
     });
 
-    app.get('/api/requests', api.requests.list);
-    app.post('/api/requests', api.requests.create);
-    app.get('/api/requests/:requestId', api.requests.retrieve);
-    app.patch('/api/requests/:requestId', api.requests.update);
-    // For compatibility
-    app.post('/api/requests/:requestId', api.requests.update);
-    app.delete('/api/requests/:requestId', api.requests.delete);
+    const requireAuthentication = function (req, res, next) {
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+        return next();
+    };
 
-    app.get('/api/friends', api.friends.list);
-    app.delete('/api/friends/:username', api.friends.delete);
-
-    app.get('/api/users/:username', api.users.retrieve);
-    app.patch('/api/users/:username', api.users.update);
+    app.get('/api/profile', requireAuthentication, api.profile.retrieve);
+    app.patch('/api/profile', requireAuthentication, api.profile.update);
     // For compatibility
-    app.post('/api/users/:username', api.users.update);
+    app.post('/api/profile', requireAuthentication, api.profile.update);
+
+    app.get('/api/requests', requireAuthentication, api.requests.list);
+    app.post('/api/requests', requireAuthentication, api.requests.create);
+    app.get('/api/requests/:requestId', requireAuthentication, api.requests.retrieve);
+    app.patch('/api/requests/:requestId', requireAuthentication, api.requests.update);
+    // For compatibility
+    app.post('/api/requests/:requestId', requireAuthentication, api.requests.update);
+    app.delete('/api/requests/:requestId', requireAuthentication, api.requests.delete);
+
+    app.get('/api/friends', requireAuthentication, api.friends.list);
+    app.delete('/api/friends/:username', requireAuthentication, api.friends.delete);
+
+    app.get('/api/users/:username', requireAuthentication, api.users.retrieve);
+    app.patch('/api/users/:username', requireAuthentication, api.users.update);
+    // For compatibility
+    app.post('/api/users/:username', requireAuthentication, api.users.update);
 
     app.get('/chat', function (req, res) {
         res.render('chat');

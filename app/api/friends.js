@@ -7,7 +7,7 @@ const User = mongoose.model('User');
 
 module.exports = {
 
-    list: function (req, res) {
+    list: function (req, res, next) {
         Relationship.find({
             user: req.user.id,
             isFriend: true
@@ -22,11 +22,11 @@ module.exports = {
                 return res.status(200).json(friends);
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     },
 
-    delete: function (req, res) {
+    delete: function (req, res, next) {
         User.findOne({ username: req.params.username })
             .then(function (target) {
                 if (!target) {
@@ -38,7 +38,7 @@ module.exports = {
                     })
             })
             .catch(function (err) {
-                return res.status(500).json(err);
+                return next(err);
             });
     }
 };

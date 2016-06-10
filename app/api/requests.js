@@ -66,7 +66,7 @@ module.exports = {
                 if (!request) {
                     return res.status(404).json({ message: 'Request not found' });
                 }
-                if (request.user !== req.user.id) {
+                if (String(request.user) !== req.user.id) {
                     return res.status(403).json({ message: 'Request access denied' });
                 }
                 if (request.state !== 'pending') {

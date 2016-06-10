@@ -22,8 +22,34 @@ module.exports = function (app, passport) {
         failureFlash: true
     }));
 
-    app.post('/api/login', passport.authenticate('local'), function (req, res) {
+    // HACK: Debug.
+    app.all('/api/*', function (req, res, next) {
+        res
+            .header('Access-Control-Allow-Origin', 'http://localhost:8080')
+            .header('Access-Control-Allow-Methods', 'GET, HEAD, POST, PATCH, PUT, DELETE, OPTIONS')
+            .header('Access-Control-Allow-Headers', 'Content-Type')
+            .header('Access-Control-Allow-Credentials', true);
+        return next();
+    });
+    app.options('/api/*', function (req, res) {
         return res.sendStatus(204);
+    });
+
+    app.post('/api/login', function(req, res, next) {
+        passport.authenticate('local', function (err, user, info) {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.status(401).json({ message: info.message });
+            }
+            req.logIn(user, function(err) {
+                if (err) {
+                    return next(err);
+                }
+                return res.sendStatus(204);
+            });
+        })(req, res, next);
     });
 
     const requireAuthentication = function (req, res, next) {

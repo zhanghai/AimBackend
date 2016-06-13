@@ -13,11 +13,9 @@ module.exports = {
             isFriend: true
         })
             .populate('target')
-            .then(function (friendships) {
-                const friends = friendships.map(friendship => {
-                    friendship.target.isFriend = friendship.isFriend;
-                    friendship.target.tags = friendship.tags;
-                    return friendship.target;
+            .then(function (relationships) {
+                const friends = relationships.map(relationship => {
+                    return Relationship.attachToTarget(relationship.toObject());
                 });
                 return res.status(200).json(friends);
             })

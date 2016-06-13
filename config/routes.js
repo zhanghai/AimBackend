@@ -47,7 +47,7 @@ module.exports = function (app, passport) {
                 if (err) {
                     return next(err);
                 }
-                return res.sendStatus(204);
+                return res.status(200).json(user);
             });
         })(req, res, next);
     });
@@ -80,9 +80,9 @@ module.exports = function (app, passport) {
     // For compatibility
     app.post('/api/users/:username', requireAuthentication, api.users.update);
 
-    app.get('/chat', function (req, res) {
-        res.render('chat');
-    });
+    app.get('/api/chats/user/:username', requireAuthentication, api.chats.retrieveByUser);
+    app.get('/api/chats/:chatId', requireAuthentication, api.chats.retrieve);
+    app.post('/api/chats/:chatId/messages', requireAuthentication, api.chats.appendMessage);
 
     app.use(function(req, res, next) {
         const err = new Error('Not Found');

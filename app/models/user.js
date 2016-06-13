@@ -69,15 +69,15 @@ UserSchema.pre('save', function (next) {
 
 UserSchema.methods = {
 
-    authenticate: function (password) {
+    authenticate(password) {
         return this.encryptPassword(password) === this.passwordHash;
     },
 
-    makeSalt: function () {
+    makeSalt() {
         return Math.round((new Date().valueOf() * Math.random())) + '';
     },
 
-    encryptPassword: function (password) {
+    encryptPassword(password) {
         if (!password) {
             return '';
         }
@@ -89,6 +89,17 @@ UserSchema.methods = {
         } catch (err) {
             return '';
         }
+    }
+};
+
+UserSchema.statics = {
+    attachRelationship(user) {
+        const Relationship = mongoose.model('Relationship');
+        return Relationship.findOne({ user: user.id })
+            .then(relationship => {
+                Relationship.attachToTarget(relationship, user);
+                return this;
+            })
     }
 };
 

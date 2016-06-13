@@ -9,7 +9,7 @@ const Schema = mongoose.Schema;
  */
 
 const RelationshipSchema = new Schema({
-    user : {
+    user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -59,13 +59,26 @@ RelationshipSchema.statics = {
         ]);
     },
 
-    addToUser: function (user, relationship) {
-        if (user instanceof mongoose.Document) {
-            user = user.toObject();
+    findAndAttachToTarget(user, target) {
+        const Relationship = mongoose.model('Relationship', RelationshipSchema);
+        return Relationship.findOne({
+            user: user._id,
+            target: target._id
+        })
+            .then(relationship => Relationship.attachToTarget(relationship, target));
+    },
+
+    attachToTarget(relationship, target) {
+        if (target instanceof mongoose.Document) {
+            throw new Error("attachToTarget called with target as a Document; should call target.toObject() before this");
+        } else if (typeof target === 'undefined') {
+            target = relationship.target;
         }
-        user.isFriend = relationship ? relationship.isFriend : false;
-        user.tags = relationship ? relationship.tags : [];
-        return user;
+        target.isFriend = relationship ? relationship.isFriend : false;
+        target.alias = relationship ? relationship.alias : null;
+        target.tags = relationship ? relationship.tags : [];
+        target.description = relationship ? relationship.description : null;
+        return target;
     }
 };
 

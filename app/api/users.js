@@ -18,7 +18,7 @@ module.exports = {
                     target: user.id
                 })
                     .then(function (relationship) {
-                        return res.status(200).json(Relationship.addToUser(user, relationship));
+                        return res.status(200).json(Relationship.attachToTarget(relationship, user));
                     });
             })
             .catch(function (err) {
@@ -31,6 +31,9 @@ module.exports = {
             .then(function (user) {
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
+                }
+                if (user.id === req.user.id()) {
+                    return res.status(403).json({ message: 'Cannot update relation with oneself' });
                 }
                 const setOperand = {};
                 if (req.body.alias) {
@@ -52,7 +55,7 @@ module.exports = {
                     upsert: true
                 })
                     .then(function (relationship) {
-                        return res.status(200).json(Relationship.addToUser(user, relationship));
+                        return res.status(200).json(Relationship.attachToTarget(relationship, user));
                     });
             })
             .catch(function (err) {

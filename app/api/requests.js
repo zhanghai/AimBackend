@@ -12,9 +12,9 @@ module.exports = {
         Request.find({ user: req.user.id })
             .sort('-createdAt')
             .populate('requester')
-            .then(function (requests) {
-                return res.status(200).json(requests);
-            })
+            .then(requests => requests.map(request => request.toObject()))
+            .then(requests => requests.map(request => Relationship.findAndAttachToTarget(req.user, request.requester)))
+            .then(requests => res.status(200).json(requests))
             .catch(function (err) {
                 return next(err);
             });
@@ -53,7 +53,9 @@ module.exports = {
                 if (request.user !== req.user.id) {
                     return res.status(403).json({ message: 'Request access denied' });
                 }
-                return res.status(200).json(request);
+                request = request.toObject();
+                return Relationship.findAndAttachToTarget(req.user, request.requester)
+                    .then(request => res.status(200).json(request));
             })
             .catch(function (err) {
                 return next(err);

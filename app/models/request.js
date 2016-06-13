@@ -9,7 +9,7 @@ const Schema = mongoose.Schema;
  */
 
 const RequestSchema = new Schema({
-    user : {
+    user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true

@@ -22,7 +22,7 @@ const UserSchema = new Schema({
     avatar: {
         type: String,
         required: true,
-        default: '/images/default-avatar.svg'
+        default: '/static/img/default-avatar.svg'
     },
     nickname: {
         type: String,

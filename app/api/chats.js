@@ -22,7 +22,7 @@ module.exports = {
                     promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
                 }
                 return Promise.all(promises)
-                    .then(() => Message.find({ chat: chat._id }).sort('-createdAt').limit(20).populate('user'))
+                    .then(() => Message.find({ chat: chat._id }).sort('createdAt').limit(20).populate('user'))
                     .then((messages) => chat.messages = messages.map(message => message.toObject()))
                     .then(() => Message.findAndAttachRelationship(req.user, chat.messages))
                     .then(() => res.status(200).json(chat));
@@ -64,7 +64,7 @@ module.exports = {
                             promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
                         }
                         return Promise.all(promises)
-                            .then(() => Message.find({ chat: chat._id }).sort('-createdAt').limit(20).populate('user'))
+                            .then(() => Message.find({ chat: chat._id }).sort('createdAt').limit(20).populate('user'))
                             .then((messages) => chat.messages = messages.map(message => message.toObject()))
                             .then(() => Message.findAndAttachRelationship(req.user, chat.messages))
                             .then(() => res.status(200).json(chat));
@@ -79,11 +79,12 @@ module.exports = {
                 if (!chat) {
                     return res.status(404).json({ message: 'Chat not found' });
                 }
-                new Message({
+                return new Message({
+                    chat: chat.id,
                     user: req.user,
-                    text: req.params.text
+                    text: req.body.text
                 }).save()
-                    .then((message) => res.status(200).json(message));
+                    .then(message => res.status(200).json(message));
             })
             .catch(err => next(err));
     }

@@ -82,9 +82,21 @@ module.exports = function (app, passport) {
 
     app.get('/api/chats/user/:username', requireAuthentication, api.chats.retrieveByUser);
     app.get('/api/chats/:chatId', requireAuthentication, api.chats.retrieve);
+    app.patch('/api/chats/:chatId/name', requireAuthentication, api.chats.updateName);
+    // For compatibility
+    app.post('/api/chats/:chatId/name', requireAuthentication, api.chats.updateName);
+    app.patch('/api/chats/:chatId/messages', requireAuthentication, api.chats.appendMessage);
+    // For compatibility
     app.post('/api/chats/:chatId/messages', requireAuthentication, api.chats.appendMessage);
 
-    app.use(function(req, res, next) {
+    app.get('/api/recents', requireAuthentication, api.recents.list);
+    app.get('/api/recents/:recentId', requireAuthentication, api.recents.retrieve);
+    app.patch('/api/recents/:recentId', requireAuthentication, api.recents.update);
+    // For compatibility
+    app.post('/api/recents/:recentId', requireAuthentication, api.recents.update);
+    app.delete('/api/recents/:recentId', requireAuthentication, api.recents.delete);
+
+    app.use((req, res, next) => {
         const err = new Error('Not Found');
         err.status = 404;
         next(err);
@@ -93,7 +105,7 @@ module.exports = function (app, passport) {
     if (app.get('env') === 'development') {
         // development error handler
         // will print stacktrace
-        app.use(function(err, req, res) {
+        app.use((err, req, res) => {
             if (!err.status) {
                 err.status = 500;
             }
@@ -106,7 +118,7 @@ module.exports = function (app, passport) {
 
     // production error handler
     // no stacktrace leaked to userId
-    app.use(function (err, req, res) {
+    app.use((err, req, res) => {
         if (!err.status) {
             err.status = 500;
         }

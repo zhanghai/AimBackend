@@ -15,9 +15,7 @@ module.exports = {
             .then(requests => requests.map(request => request.toObject()))
             .then(requests => requests.map(request => Relationship.findAndAttachToTarget(req.user, request.requester)))
             .then(requests => res.status(200).json(requests))
-            .catch(function (err) {
-                return next(err);
-            });
+            .catch(next);
     },
 
     create: function (req, res, next) {
@@ -34,19 +32,15 @@ module.exports = {
                     requester: req.user.id,
                     message: req.body.message
                 }).save()
-                    .then(function (request) {
-                        return res.status(200).json(request);
-                    })
+                    .then(request => res.status(200).json(request))
             })
-            .catch(function (err) {
-                return next(err);
-            })
+            .catch(next);
     },
 
     retrieve: function (req, res, next) {
         Request.findById(req.params.requestId)
             .populate('requester')
-            .then(function (request) {
+            .then(request => {
                 if (!request) {
                     return res.status(404).json({ message: 'Request not found' });
                 }
@@ -57,14 +51,12 @@ module.exports = {
                 return Relationship.findAndAttachToTarget(req.user, request.requester)
                     .then(request => res.status(200).json(request));
             })
-            .catch(function (err) {
-                return next(err);
-            });
+            .catch(next);
     },
 
     update: function (req, res, next) {
         Request.findById(req.params.requestId)
-            .then(function (request) {
+            .then(request => {
                 if (!request) {
                     return res.status(404).json({ message: 'Request not found' });
                 }
@@ -77,33 +69,27 @@ module.exports = {
                 switch (req.body.state) {
                     case 'accepted':
                         return Relationship.setIsFriend(request.user, request.requester, true)
-                            .then(function () {
+                            .then(() => {
                                 request.state = req.body.state;
                                 return request.save();
                             })
-                            .then(function (request) {
-                                return res.status(200).json(request);
-                            });
+                            .then(request => res.status(200).json(request));
                         break;
                     case 'rejected':
                         request.state = req.body.state;
                         return request.save()
-                            .then(function (request) {
-                                return res.status(200).json(request);
-                            });
+                            .then(request => res.status(200).json(request));
                         break;
                     default:
                         return res.status(422).json({ message: 'Invalid parameter: action' });
                 }
             })
-            .catch(function (err) {
-                return next(err);
-            });
+            .catch(next);
     },
 
     delete: function (req, res, next) {
         Request.findByIdAndRemove(req.params.requestId)
-            .then(function (request) {
+            .then(request => {
                 if (!request) {
                     return res.status(404).json({ message: 'Request not found' });
                 }
@@ -111,12 +97,8 @@ module.exports = {
                     return res.status(403).json({ message: 'Request access denied' });
                 }
                 return request.remove()
-                    .then(function (request) {
-                        return res.status(200).json(request);
-                    });
+                    .then(request => res.status(200).json(request));
             })
-            .catch(function (err) {
-                return next(err);
-            });
+            .catch(next);
     }
 };

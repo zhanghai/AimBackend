@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const Chat = mongoose.model('Chat');
 const Message = mongoose.model('Message');
+const Recent = mongoose.model('Recent');
 const Relationship = mongoose.model('Relationship');
 const User = mongoose.model('User');
 
@@ -16,18 +17,20 @@ module.exports = {
                 if (!chat) {
                     return res.status(404).json({ message: 'Chat not found' });
                 }
-                chat = chat.toObject();
-                const promises = [];
-                for (const member of chat.members) {
-                    promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
-                }
-                return Promise.all(promises)
-                    .then(() => Message.find({ chat: chat._id }).sort('createdAt').limit(20).populate('user'))
-                    .then((messages) => chat.messages = messages.map(message => message.toObject()))
-                    .then(() => Message.findAndAttachRelationship(req.user, chat.messages))
-                    .then(() => res.status(200).json(chat));
+                chat.members.find(member => member.user.id === req.user.id).lastReadAt = new Date();
+                return chat.save()
+                    .then(chat => {
+                        chat = chat.toObject();
+                        const promises = [];
+                        for (const member of chat.members) {
+                            promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
+                        }
+                        return Promise.all(promises)
+                            .then(() => Chat.findAndAttachMessages(chat, req.user))
+                            .then(() => res.status(200).json(chat));
+                    });
             })
-            .catch(err => next(err));
+            .catch(next);
     },
 
     retrieveByUser(req, res, next) {
@@ -48,14 +51,16 @@ module.exports = {
                         if (!chat) {
                             return new Chat({
                                 members: [{
-                                    user: req.user.id
+                                    user: req.user.id,
+                                    lastReadAt: new Date()
                                 }, {
                                     user: peer.id
                                 }]
                             }).save()
-                                .then(chat => chat.populate('members.user'));
+                                .then(chat => chat.populate('members.user').execPopulate());
                         }
-                        return chat;
+                        chat.members.find(member => member.user.id === req.user.id).lastReadAt = new Date();
+                        return chat.save();
                     })
                     .then(chat => chat.toObject())
                     .then(chat => {
@@ -64,13 +69,24 @@ module.exports = {
                             promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
                         }
                         return Promise.all(promises)
-                            .then(() => Message.find({ chat: chat._id }).sort('createdAt').limit(20).populate('user'))
-                            .then((messages) => chat.messages = messages.map(message => message.toObject()))
-                            .then(() => Message.findAndAttachRelationship(req.user, chat.messages))
+                            .then(() => Chat.findAndAttachMessages(chat, req.user))
                             .then(() => res.status(200).json(chat));
                     });
             })
-            .catch(err => next(err));
+            .catch(next);
+    },
+
+    updateName(req, res, next) {
+        return Chat.findById(req.params.chatId)
+            .then(chat => {
+                if (!chat) {
+                    return res.status(404).json({ message: 'Chat not found' });
+                }
+                chat.name = req.body.name;
+                chat.save()
+                    .then(message => res.status(200).json(message));
+            })
+            .catch(next);
     },
 
     appendMessage(req, res, next) {
@@ -84,8 +100,25 @@ module.exports = {
                     user: req.user,
                     text: req.body.text
                 }).save()
-                    .then(message => res.status(200).json(message));
+                    .then((message) => {
+                        chat.members.find(member => member.user === req.user.id).lastReadAt = new Date();
+                        return chat.save()
+                            .then(() => {
+                                const promises = [];
+                                for (const member of chat.members) {
+                                    promises.push(Recent.findOneAndUpdate({
+                                        user: member.user,
+                                        chat: chat.id
+                                    }, {}, {
+                                        new: true,
+                                        upsert: true
+                                    }));
+                                }
+                                return Promise.all(promises);
+                            })
+                            .then(() => res.status(200).json(message));
+                    })
             })
-            .catch(err => next(err));
+            .catch(next);
     }
 };

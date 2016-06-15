@@ -13,20 +13,14 @@ module.exports = {
             isFriend: true
         })
             .populate('target')
-            .then(function (relationships) {
-                const friends = relationships.map(relationship => {
-                    return Relationship.attachToTarget(relationship.toObject());
-                });
-                return res.status(200).json(friends);
-            })
-            .catch(function (err) {
-                return next(err);
-            });
+            .then(relationships => relationships.map(relationship => Relationship.attachToTarget(relationship.toObject())))
+            .then((friends) => res.status(200).json(friends))
+            .catch(next);
     },
 
     delete: function (req, res, next) {
         User.findOne({ username: req.params.username })
-            .then(function (target) {
+            .then(target => {
                 if (!target) {
                     return res.status(404).json({ message: 'User not found' });
                 }
@@ -35,8 +29,6 @@ module.exports = {
                         return res.sendStatus(204);
                     })
             })
-            .catch(function (err) {
-                return next(err);
-            });
+            .catch(next);
     }
 };

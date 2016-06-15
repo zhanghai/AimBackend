@@ -23,11 +23,7 @@ module.exports = {
             user.signature = req.body.signature;
         }
         user.save()
-            .then(function (user) {
-                return res.status(200).json(user);
-            })
-            .catch(function (err) {
-                return next(err);
-            });
+            .then(user => res.status(200).json(user))
+            .catch(next);
     }
 };

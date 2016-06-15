@@ -9,7 +9,7 @@ module.exports = {
 
     retrieve: function (req, res, next) {
         User.findOne({ username: req.params.username })
-            .then(function (user) {
+            .then(user => {
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
@@ -17,18 +17,14 @@ module.exports = {
                     user: req.user.id,
                     target: user.id
                 })
-                    .then(function (relationship) {
-                        return res.status(200).json(Relationship.attachToTarget(relationship, user));
-                    });
+                    .then(relationship => res.status(200).json(Relationship.attachToTarget(relationship, user.toObject())));
             })
-            .catch(function (err) {
-                return next(err);
-            })
+            .catch(next);
     },
 
     update: function (req, res, next) {
         User.findOne({ username: req.params.username })
-            .then(function (user) {
+            .then(user => {
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
@@ -54,12 +50,8 @@ module.exports = {
                     new: true,
                     upsert: true
                 })
-                    .then(function (relationship) {
-                        return res.status(200).json(Relationship.attachToTarget(relationship, user));
-                    });
+                    .then(relationship => res.status(200).json(Relationship.attachToTarget(relationship, user.toObject())));
             })
-            .catch(function (err) {
-                return next(err);
-            });
+            .catch(next);
     }
 };

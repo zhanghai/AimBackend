@@ -31,12 +31,12 @@ const MessageSchema = new Schema({
 });
 
 MessageSchema.statics = {
-    findAndAttachRelationship(user, messages) {
+    findAndAttachUsersWithRelationship(messages, user) {
         const promises = [];
         const Relationship = mongoose.model('Relationship');
         for (const message of messages) {
             if (message instanceof mongoose.Document) {
-                throw new Error("findAndAttachRelationship called with message as a Document; should call message.toObject() before this");
+                throw new Error("findAndAttachUsersWithRelationship called with message as a Document; should call message.toObject() before this");
             }
             promises.push(Relationship.findAndAttachToTarget(user, message.user))
         }

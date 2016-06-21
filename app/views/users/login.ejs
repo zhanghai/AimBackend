@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh" style="display: table; width: 100%; height: 100%">
 <%- include('../includes/head', { title: '登录' }) %>
-<body style="display: table-cell; vertical-align: middle; background: #2196f3 url(/images/background.jpg); background-size: cover">
+<body style="display: table-cell; vertical-align: middle; background: url(/images/background.jpg) center / cover">
 <main>
     <div class="container-fluid">
         <div class="row">
@@ -10,14 +10,13 @@
                     <fieldset>
                         <legend>登录</legend>
                         <%- include('../includes/flash') %>
-                        <%- include('../includes/csrf') %>
                         <div class="form-group label-floating" style="margin: 14px 0 0 0">
                             <label for="username" class="control-label" style="padding-top: initial">用户名</label>
                             <input id="username" name="username" required pattern="[0-9A-Za-z]{1,16}" title="1-16 位英文字母或数字" class="form-control">
                         </div>
                         <div class="form-group label-floating" style="margin: 14px 0 14px 0">
                             <label for="password" class="control-label" style="padding-top: initial">密码</label>
-                            <input id="password" name="password" required type="password" class="form-control">
+                            <input id="password" name="password" required minlength="6" type="password" class="form-control">
                         </div>
                         <input type="submit" value="登录" class="btn btn-raised btn-primary col-xs-12">
                         <a href="/register" class="btn btn-primary pull-right">没有账户？现在注册</a>

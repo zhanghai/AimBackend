@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const User = mongoose.model('User');
 
 module.exports = new LocalStrategy(function (username, password, done) {
-        User.findOne({ username: username }, function (err, user) {
+        User.findOne({ username }).select('+passwordSalt +passwordHash').exec((err, user) => {
             if (err) {
                 return done(err);
             } else if (!user) {

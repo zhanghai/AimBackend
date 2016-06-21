@@ -24,9 +24,15 @@ const RelationshipSchema = new Schema({
         required: true,
         default: false
     },
-    alias: String,
+    alias: {
+        type: String,
+        default: ""
+    },
     tags: [String],
-    description: String
+    description:  {
+        type: String,
+        default: ""
+    }
 });
 
 RelationshipSchema.statics = {

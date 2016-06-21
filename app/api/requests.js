@@ -2,6 +2,10 @@
 
 const mongoose = require('mongoose');
 
+const io = require('../../config/io');
+
+const Chat = mongoose.model('Chat');
+const Message = mongoose.model('Message');
 const Relationship = mongoose.model('Relationship');
 const Request = mongoose.model('Request');
 const User = mongoose.model('User');
@@ -13,14 +17,20 @@ module.exports = {
             .sort('-createdAt')
             .populate('requester')
             .then(requests => requests.map(request => request.toObject()))
-            .then(requests => requests.map(request => Relationship.findAndAttachToTarget(req.user, request.requester)))
-            .then(requests => res.status(200).json(requests))
+            .then(requests => {
+                const promises = [];
+                for (const request of requests) {
+                    promises.push(Relationship.findAndAttachToTarget(req.user, request.requester));
+                }
+                return Promise.all(promises)
+                    .then(() => res.status(200).json(requests));
+            })
             .catch(next);
     },
 
     create: function (req, res, next) {
         User.findOne({ username: req.body.username })
-            .then(function (target) {
+            .then(target => {
                 if (!target) {
                     return res.status(404).json({ message: 'User not found' });
                 }
@@ -33,6 +43,7 @@ module.exports = {
                     message: req.body.message
                 }).save()
                     .then(request => res.status(200).json(request))
+                    .then(() => io.to(target.id).emit('requests-updated'));
             })
             .catch(next);
     },
@@ -73,7 +84,42 @@ module.exports = {
                                 request.state = req.body.state;
                                 return request.save();
                             })
-                            .then(request => res.status(200).json(request));
+                            .then(request => res.status(200).json(request))
+                            .then(() => {
+                                return Chat.findOne({
+                                    private: true,
+                                    'members.user': {
+                                        $all: [request.user, request.requester]
+                                    }
+                                })
+                            })
+                            .then(chat => {
+                                if (!chat) {
+                                    return new Chat({
+                                        members: [{
+                                            user: request.user,
+                                            lastReadAt: new Date()
+                                        }, {
+                                            user: request.requester
+                                        }],
+                                        private: true
+                                    }).save();
+                                }
+                                return chat;
+                            })
+                            .then(chat => {
+                                return new Message({
+                                    chat: chat.id,
+                                    user: request.user,
+                                    text: '我通过了你的好友请求，现在我们可以开始聊天了。'
+                                }).save();
+                            })
+                            .then(chat => {
+                                for (const userId of [request.user, request.requester]) {
+                                    io.to(userId).emit('chat-updated', chat.id);
+                                    io.to(userId).emit('recents-updated');
+                                }
+                            });
                         break;
                     case 'rejected':
                         request.state = req.body.state;

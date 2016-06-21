@@ -10,6 +10,7 @@
     "body-parser": "~1.13.2",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^1.2.0",
+    "cookie-parser": "^1.4.3",
     "csurf": "^1.9.0",
     "debug": "~2.2.0",
     "ejs": "~2.3.3",
@@ -20,6 +21,8 @@
     "morgan": "~1.6.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
-    "serve-favicon": "~2.3.0"
+    "passport.socketio": "^3.6.1",
+    "serve-favicon": "~2.3.0",
+    "socket.io": "^1.4.6"
   }
 }

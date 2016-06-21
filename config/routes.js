@@ -6,7 +6,7 @@ const users = require('../app/controllers/users');
 module.exports = function (app, passport) {
 
     app.get('/', function(req, res) {
-        res.render('index', { title: 'Aim' });
+        res.render('index', { title: 'AimBackend' });
     });
 
     app.get('/register', function (req, res) {
@@ -75,6 +75,7 @@ module.exports = function (app, passport) {
     app.get('/api/friends', requireAuthentication, api.friends.list);
     app.delete('/api/friends/:username', requireAuthentication, api.friends.delete);
 
+    app.get('/api/users', requireAuthentication, api.users.search);
     app.get('/api/users/:username', requireAuthentication, api.users.retrieve);
     app.patch('/api/users/:username', requireAuthentication, api.users.update);
     // For compatibility

@@ -14,7 +14,7 @@ module.exports = {
         })
             .populate('target')
             .then(relationships => relationships.map(relationship => Relationship.attachToTarget(relationship.toObject())))
-            .then((friends) => res.status(200).json(friends))
+            .then(friends => res.status(200).json(friends))
             .catch(next);
     },
 

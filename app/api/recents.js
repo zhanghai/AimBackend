@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const Chat = mongoose.model('Chat');
 const Recent = mongoose.model('Recent');
+const Relationship = mongoose.model('Relationship');
 const User = mongoose.model('User');
 
 module.exports = {
@@ -21,6 +22,9 @@ module.exports = {
                     .then(recents => {
                         const promises = [];
                         for (const recent of recents) {
+                            for (const member of recent.chat.members) {
+                                promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
+                            }
                             promises.push(Chat.findAndAttachMessages(recent.chat, req.user));
                         }
                         return Promise.all(promises)
@@ -45,10 +49,13 @@ module.exports = {
                 return recent.chat.populate('members.user').execPopulate()
                     .then(() => {
                         recent = recent.toObject();
-                        return Chat.findAndAttachMessages(recent.chat, req.user)
-                            .then(() => {
-                                return res.status(200).json(recent);
-                            });
+                        const promises = [];
+                        for (const member of recent.chat.members) {
+                            promises.push(Relationship.findAndAttachToTarget(req.user, member.user));
+                        }
+                        return Promise.all(promises)
+                            .then(() => Chat.findAndAttachMessages(recent.chat, req.user))
+                            .then(() => res.status(200).json(recent));
                     });
             })
             .catch(next);

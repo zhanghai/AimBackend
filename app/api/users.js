@@ -7,7 +7,39 @@ const User = mongoose.model('User');
 
 module.exports = {
 
-    retrieve: function (req, res, next) {
+    search(req, res, next) {
+        if (!req.query.keyword) {
+            return res.status(403).json({ message: 'Keyword is empty' });
+        }
+        const regex = new RegExp(req.query.keyword, 'i');
+        User.find({
+            $or: [{
+                username: {
+                    $regex: regex
+                }
+            }, {
+                nickname: {
+                    $regex: regex
+                }
+            }, {
+                signature: {
+                    $regex: regex
+                }
+            }]
+        })
+            .then(users => {
+                users = users.map(user => user.toObject());
+                const promises = [];
+                for (const user of users) {
+                    promises.push(User.attachRelationship(user));
+                }
+                return Promise.all(promises)
+                    .then(() => res.status(200).json(users));
+            })
+            .catch(next);
+    },
+
+    retrieve(req, res, next) {
         User.findOne({ username: req.params.username })
             .then(user => {
                 if (!user) {
@@ -22,30 +54,23 @@ module.exports = {
             .catch(next);
     },
 
-    update: function (req, res, next) {
+    update(req, res, next) {
         User.findOne({ username: req.params.username })
             .then(user => {
                 if (!user) {
                     return res.status(404).json({ message: 'User not found' });
                 }
-                if (user.id === req.user.id()) {
+                if (user.id === req.user.id) {
                     return res.status(403).json({ message: 'Cannot update relation with oneself' });
-                }
-                const setOperand = {};
-                if (req.body.alias) {
-                    setOperand.alias = req.body.alias;
-                }
-                if (req.body.tags) {
-                    setOperand.tags = req.body.tags;
-                }
-                if (req.body.description) {
-                    setOperand.description = req.body.description;
                 }
                 return Relationship.findOneAndUpdate({
                     user: req.user.id,
                     target: user.id
                 }, {
-                    $set: setOperand
+                    alias: req.body.alias,
+                    description: req.body.description,
+                    // Guard against empty string as array.
+                    tags: req.body.tags || []
                 }, {
                     new: true,
                     upsert: true

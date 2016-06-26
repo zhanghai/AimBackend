@@ -11,7 +11,8 @@ module.exports = {
         if (!req.query.keyword) {
             return res.status(403).json({ message: 'Keyword is empty' });
         }
-        const regex = new RegExp(req.query.keyword, 'i');
+        // https://github.com/benjamingr/RegExp.escape/blob/master/polyfill.js
+        const regex = new RegExp(req.query.keyword.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
         User.find({
             $or: [{
                 username: {

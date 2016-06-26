@@ -6,6 +6,7 @@ const io = require('../../config/io');
 
 const Chat = mongoose.model('Chat');
 const Message = mongoose.model('Message');
+const Recent = mongoose.model('Recent');
 const Relationship = mongoose.model('Relationship');
 const Request = mongoose.model('Request');
 const User = mongoose.model('User');
@@ -112,13 +113,26 @@ module.exports = {
                                     chat: chat.id,
                                     user: request.user,
                                     text: '我通过了你的好友请求，现在我们可以开始聊天了。'
-                                }).save();
-                            })
-                            .then(chat => {
-                                for (const userId of [request.user, request.requester]) {
-                                    io.to(userId).emit('chat-updated', chat.id);
-                                    io.to(userId).emit('recents-updated');
-                                }
+                                }).save()
+                                    .then(() => {
+                                        const promises = [];
+                                        for (const member of chat.members) {
+                                            promises.push(Recent.findOneAndUpdate({
+                                                user: member.user,
+                                                chat: chat.id
+                                            }, {}, {
+                                                new: true,
+                                                upsert: true
+                                            }));
+                                        }
+                                        return Promise.all(promises);
+                                    })
+                                    .then(() => {
+                                        for (const userId of [request.user, request.requester]) {
+                                            io.to(userId).emit('chat-updated', chat.id);
+                                            io.to(userId).emit('recents-updated');
+                                        }
+                                    });
                             });
                         break;
                     case 'rejected':

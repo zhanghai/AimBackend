@@ -1,13 +1,11 @@
 'use strict';
 
+const upload = require('./upload');
+
 const api = require('../app/api');
 const users = require('../app/controllers/users');
 
 module.exports = function (app, passport) {
-
-    app.get('/', function(req, res) {
-        res.render('index', { title: 'AimBackend' });
-    });
 
     app.get('/register', function (req, res) {
         res.render('users/register');
@@ -21,6 +19,22 @@ module.exports = function (app, passport) {
         failureRedirect: '/login',
         failureFlash: true
     }));
+
+    // HACK: Debug.
+    app.all('/upload', function (req, res, next) {
+        res
+            .header('Access-Control-Allow-Origin', 'http://localhost:8080')
+            .header('Access-Control-Allow-Methods', 'GET, HEAD, POST, PATCH, PUT, DELETE, OPTIONS')
+            .header('Access-Control-Allow-Headers', 'Content-Type')
+            .header('Access-Control-Allow-Credentials', true);
+        return next();
+    });
+    app.options('/upload', function (req, res) {
+        return res.sendStatus(204);
+    });
+    app.post('/upload', upload.single('file'), (req, res, next) => {
+        return res.status(200).json(req.file);
+    });
 
     // HACK: Debug.
     app.all('/api/*', function (req, res, next) {

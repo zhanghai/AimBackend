@@ -26,6 +26,8 @@ module.exports = function (app, passport) {
     app.set('view engine', 'ejs');
     app.use(less(path.join(root, 'public')));
     app.use(express.static(path.join(root, 'public')));
+    app.use(express.static(path.join(root, 'frontend')));
+    app.use('/uploads', express.static(path.join(root, 'uploads')));
 
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));

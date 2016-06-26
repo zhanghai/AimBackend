@@ -19,7 +19,6 @@ io.use(passportIo.authorize({
 }));
 
 io.on('connection', socket => {
-    console.log(socket.request.user);
     socket.join(socket.request.user.id);
 });
 

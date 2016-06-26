@@ -24,7 +24,7 @@ const UserSchema = new Schema({
     avatar: {
         type: String,
         required: true,
-        default: '/static/img/default-avatar.svg'
+        default: '/images/default-avatar.svg'
     },
     nickname: {
         type: String,

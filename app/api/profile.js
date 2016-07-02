@@ -1,10 +1,5 @@
 'use strict';
 
-const mongoose = require('mongoose');
-
-const Relationship = mongoose.model('Relationship');
-const User = mongoose.model('User');
-
 module.exports = {
 
     retrieve: function (req, res) {
